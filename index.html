@@ -1,0 +1,64 @@
+<!doctype html><html lang="de"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2f6fed"><link rel="manifest" href="manifest.webmanifest">
+<title>RD Fuel Privat</title>
+<style>
+:root{color-scheme:light dark;--accent:#2f6fed;--card:#fff;--bg:#f4f6fa;--text:#172033;--muted:#667085;--line:#d9deea;--ktw:#d9eaff;--rtw:#dff5e7;--frei:#fff3cc}
+@media(prefers-color-scheme:dark){:root{--card:#171a21;--bg:#0f1116;--text:#f4f6fb;--muted:#a7afbf;--line:#303541;--ktw:#17304c;--rtw:#163825;--frei:#3d3212}}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text)}
+header{position:sticky;top:0;z-index:10;background:var(--card);border-bottom:1px solid var(--line);padding:14px 16px}
+h1{font-size:20px;margin:0}.sub{color:var(--muted);font-size:13px;margin-top:3px}
+nav{display:flex;gap:8px;padding:10px 12px;overflow:auto;position:sticky;top:68px;z-index:9;background:var(--bg)}
+button,.filelabel{border:0;border-radius:12px;padding:11px 14px;font-weight:700;background:#e7ecf7;color:#24324c;cursor:pointer;white-space:nowrap}
+button.active{background:var(--accent);color:#fff}main{padding:0 12px 104px;max-width:760px;margin:auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.ktw{background:var(--ktw)}.rtw{background:var(--rtw)}.frei{background:var(--frei)}
+.dayhead{display:flex;justify-content:space-between;gap:8px}.daytitle{font-size:18px;font-weight:850}.shift{font-size:13px;color:var(--muted);text-align:right}
+.row{display:grid;grid-template-columns:34px 1fr;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+input[type=checkbox]{width:25px;height:25px;accent-color:var(--accent)}.label{font-size:12px;color:var(--muted);font-weight:750;text-transform:uppercase}.text{font-size:16px;line-height:1.35}
+.store,.section{font-size:18px;font-weight:850;margin:16px 4px 8px}.amount,.muted{font-size:13px;color:var(--muted)}
+.hidden{display:none}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tag{display:inline-block;background:#e7ecf7;color:#24324c;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:700;margin-right:5px}
+input[type=text],input[type=number]{width:100%;padding:11px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--text)}
+.notice{background:#eef4ff;border:1px solid #b8cdf8;border-radius:16px;padding:12px;margin-bottom:12px}
+footer{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);padding:9px;display:flex;justify-content:center;gap:7px}
+input[type=file]{display:none}.danger{background:#fbe5e5;color:#8c1d1d}.install{background:#dff7e8;color:#116b3a}ul{margin:8px 0;padding-left:22px}
+</style></head><body>
+<header><h1>🚑 RD Fuel Privat</h1><div class="sub" id="weekLabel"></div></header>
+<nav id="nav"></nav><main id="main"></main>
+<footer><button id="installBtn" class="install hidden">Installieren</button><button id="exportBtn">Export</button><label class="filelabel" for="importFile">Import</label><input id="importFile" type="file" accept="application/json"><button id="resetBtn" class="danger">Reset</button></footer>
+<script>
+const DEFAULT_DATA={"weekLabel": "Noch kein persönlicher Plan importiert", "days": [{"date": "", "label": "Montag", "shift": "Nicht eingetragen", "type": "frei", "meals": []}, {"date": "", "label": "Dienstag", "shift": "Nicht eingetragen", "type": "frei", "meals": []}, {"date": "", "label": "Mittwoch", "shift": "Nicht eingetragen", "type": "frei", "meals": []}, {"date": "", "label": "Donnerstag", "shift": "Nicht eingetragen", "type": "frei", "meals": []}, {"date": "", "label": "Freitag", "shift": "Nicht eingetragen", "type": "frei", "meals": []}, {"date": "", "label": "Samstag", "shift": "Nicht eingetragen", "type": "frei", "meals": []}, {"date": "", "label": "Sonntag", "shift": "Nicht eingetragen", "type": "frei", "meals": []}], "shopping": [], "mealPrep": [], "rucksack": [{"item": "Hauptmahlzeit", "done": false}, {"item": "1 Shake", "done": false}, {"item": "1 Proteinpudding", "done": false}, {"item": "1 Stück Obst", "done": false}, {"item": "50 g Nüsse / Studentenfutter", "done": false}, {"item": "1 Proteinriegel als Reserve", "done": false}], "favorites": [], "stock": [], "weights": []};const KEY='rd-fuel-privacy-v1';let data=JSON.parse(localStorage.getItem(KEY)||'null')||DEFAULT_DATA;
+const tabs=[['week','Woche'],['shop','Einkauf'],['ruck','Rucksack'],['prep','Meal Prep'],['fav','Favoriten'],['stock','Vorrat'],['weight','Gewicht']];
+let active='week';function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function nav(){document.getElementById('nav').innerHTML=tabs.map(([id,n])=>`<button class="${active===id?'active':''}" data-tab="${id}">${n}</button>`).join('');document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{active=b.dataset.tab;render()})}
+function dayCard(d,di){return `<div class="card ${d.type||'frei'}"><div class="dayhead"><div class="daytitle">${esc(d.label)}</div><div class="shift">${esc(d.shift)}</div></div>${(d.meals||[]).length?d.meals.map((m,mi)=>`<label class="row"><input type="checkbox" data-k="meal" data-di="${di}" data-mi="${mi}" ${m.done?'checked':''}><div><div class="label">${esc(m.label)}</div><div class="text">${esc(m.text)}</div></div></label>`).join(''):'<div class="muted" style="margin-top:10px">Noch kein persönlicher Plan importiert.</div>'}</div>`}
+function hasPersonalPlan(){return data.shopping.length>0||data.days.some(d=>(d.meals||[]).length>0)}
+function renderWeek(){
+ if(!hasPersonalPlan()) return `<div class="card" style="text-align:center;padding:28px 18px">
+ <div style="font-size:52px">🚑</div>
+ <div class="daytitle" style="font-size:24px;margin-top:8px">Willkommen bei RD Fuel</div>
+ <p class="muted">Die öffentliche App enthält keine persönlichen Daten. Importiere deinen Wochenplan, damit er nur auf diesem Gerät gespeichert wird.</p>
+ <label class="filelabel" for="importFile" style="display:inline-block;margin-top:10px;background:#2f6fed;color:white">📥 Ersten Wochenplan importieren</label>
+ </div>
+ <div class="notice"><strong>Privat:</strong> Dienstzeiten, Einkauf und Gewicht werden nicht zu GitHub hochgeladen.</div>`;
+ return `<div class="notice"><strong>Privatmodus:</strong> Deine persönlichen Daten liegen nur auf diesem Gerät.</div>`+data.days.map((d,di)=>dayCard(d,di)).join('')
+}
+function renderShop(){if(!data.shopping.length)return '<div class="card">Noch keine Einkaufsliste importiert.</div>';return [...new Set(data.shopping.map(x=>x.store))].map(store=>`<div class="store">${esc(store)}</div><div class="card">${data.shopping.map((x,i)=>({...x,i})).filter(x=>x.store===store).map(x=>`<label class="row"><input type="checkbox" data-k="shop" data-i="${x.i}" ${x.done?'checked':''}><div><div class="text">${esc(x.item)}</div><div class="amount">${esc(x.amount)}</div></div></label>`).join('')}</div>`).join('')}
+function renderRuck(){return `<div class="card"><div class="daytitle">Standard-Rucksack</div>${data.rucksack.map((x,i)=>`<label class="row"><input type="checkbox" data-k="ruck" data-i="${i}" ${x.done?'checked':''}><div class="text">${esc(x.item)}</div></label>`).join('')}<p><button id="clearRuck">Zurücksetzen</button></p></div>`}
+function renderPrep(){return data.mealPrep.length?data.mealPrep.map(x=>`<div class="card"><div class="daytitle">${esc(x.name)}</div><p><span class="tag">${esc(x.time)}</span><span class="tag">${esc(x.portions)}</span></p><div class="grid2"><div><div class="label">Zutaten</div><ul>${x.ingredients.map(i=>`<li>${esc(i)}</li>`).join('')}</ul></div><div><div class="label">Kurz</div><ul>${x.steps.map(i=>`<li>${esc(i)}</li>`).join('')}</ul></div></div></div>`).join(''):'<div class="card">Noch keine Rezepte importiert.</div>'}
+function renderFav(){return `<div class="card"><div class="daytitle">Favorit hinzufügen</div><p><input id="favName" type="text" placeholder="Gericht"></p><p><input id="favNote" type="text" placeholder="Notiz"></p><button id="addFav">Speichern</button></div>`+data.favorites.map((x,i)=>`<div class="card"><div class="daytitle">${esc(x.name)}</div><div class="muted">${esc(x.note)}</div><p><button data-del-fav="${i}" class="danger">Löschen</button></p></div>`).join('')}
+function renderStock(){return data.stock.length?`<div class="card">${data.stock.map((x,i)=>`<label class="row"><input type="checkbox" data-k="stock" data-i="${i}" ${x.have?'checked':''}><div class="text">${esc(x.item)}</div></label>`).join('')}</div>`:'<div class="card">Noch kein Vorrat eingetragen.</div>'}
+function renderWeight(){return `<div class="card"><div class="daytitle">Gewicht eintragen</div><div class="grid2"><input id="wDate" type="text" placeholder="Datum"><input id="wKg" type="number" step="0.1" placeholder="kg"></div><p><input id="wNote" type="text" placeholder="Notiz"></p><button id="addWeight">Speichern</button></div>`+data.weights.slice().reverse().map(x=>`<div class="card"><div class="daytitle">${esc(x.kg||'–')} kg</div><div class="muted">${esc(x.date)} · ${esc(x.note)}</div></div>`).join('')}
+function render(){weekLabel.textContent=data.weekLabel;nav();main.innerHTML=active==='week'?renderWeek():active==='shop'?renderShop():active==='ruck'?renderRuck():active==='prep'?renderPrep():active==='fav'?renderFav():active==='stock'?renderStock():renderWeight();bind()}
+function bind(){document.querySelectorAll('input[data-k]').forEach(e=>e.onchange=()=>{if(e.dataset.k==='meal')data.days[+e.dataset.di].meals[+e.dataset.mi].done=e.checked;if(e.dataset.k==='shop')data.shopping[+e.dataset.i].done=e.checked;if(e.dataset.k==='stock')data.stock[+e.dataset.i].have=e.checked;if(e.dataset.k==='ruck')data.rucksack[+e.dataset.i].done=e.checked;save()});
+if(document.getElementById('clearRuck'))clearRuck.onclick=()=>{data.rucksack.forEach(x=>x.done=false);save();render()};
+if(document.getElementById('addFav'))addFav.onclick=()=>{if(favName.value.trim()){data.favorites.push({name:favName.value.trim(),note:favNote.value.trim()});save();render()}};
+document.querySelectorAll('[data-del-fav]').forEach(b=>b.onclick=()=>{data.favorites.splice(+b.dataset.delFav,1);save();render()});
+if(document.getElementById('addWeight'))addWeight.onclick=()=>{if(wKg.value){data.weights.push({date:wDate.value||new Date().toLocaleDateString('de-DE'),kg:wKg.value,note:wNote.value});save();render()}}}
+exportBtn.onclick=()=>{const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='rd-fuel-private-plan.json';a.click();URL.revokeObjectURL(a.href)}
+importFile.onchange=async e=>{try{data=JSON.parse(await e.target.files[0].text());save();render();alert('Persönlicher Plan lokal importiert.')}catch{alert('Datei konnte nicht gelesen werden.')}e.target.value=''}
+resetBtn.onclick=()=>{if(confirm('Wirklich alle lokal gespeicherten persönlichen Daten löschen?')){localStorage.removeItem(KEY);data=structuredClone(DEFAULT_DATA);render()}}
+let deferredPrompt;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;installBtn.classList.remove('hidden')});installBtn.onclick=async()=>{if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;installBtn.classList.add('hidden')}}
+if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js');render();
+</script></body></html>

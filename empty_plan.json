@@ -1,0 +1,85 @@
+{
+  "weekLabel": "Noch kein persönlicher Plan importiert",
+  "days": [
+    {
+      "date": "",
+      "label": "Montag",
+      "shift": "Nicht eingetragen",
+      "type": "frei",
+      "meals": []
+    },
+    {
+      "date": "",
+      "label": "Dienstag",
+      "shift": "Nicht eingetragen",
+      "type": "frei",
+      "meals": []
+    },
+    {
+      "date": "",
+      "label": "Mittwoch",
+      "shift": "Nicht eingetragen",
+      "type": "frei",
+      "meals": []
+    },
+    {
+      "date": "",
+      "label": "Donnerstag",
+      "shift": "Nicht eingetragen",
+      "type": "frei",
+      "meals": []
+    },
+    {
+      "date": "",
+      "label": "Freitag",
+      "shift": "Nicht eingetragen",
+      "type": "frei",
+      "meals": []
+    },
+    {
+      "date": "",
+      "label": "Samstag",
+      "shift": "Nicht eingetragen",
+      "type": "frei",
+      "meals": []
+    },
+    {
+      "date": "",
+      "label": "Sonntag",
+      "shift": "Nicht eingetragen",
+      "type": "frei",
+      "meals": []
+    }
+  ],
+  "shopping": [],
+  "mealPrep": [],
+  "rucksack": [
+    {
+      "item": "Hauptmahlzeit",
+      "done": false
+    },
+    {
+      "item": "1 Shake",
+      "done": false
+    },
+    {
+      "item": "1 Proteinpudding",
+      "done": false
+    },
+    {
+      "item": "1 Stück Obst",
+      "done": false
+    },
+    {
+      "item": "50 g Nüsse / Studentenfutter",
+      "done": false
+    },
+    {
+      "item": "1 Proteinriegel als Reserve",
+      "done": false
+    }
+  ],
+  "favorites": [],
+  "stock": [],
+  "weights": []
+}
