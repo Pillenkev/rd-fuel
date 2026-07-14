@@ -1,6 +1,6 @@
 # RD Fuel Privat für GitHub Pages
 
-Eine Tast app mainly nur für mich um mit dem Diensplan verträgliche essensroutinen aufzubauen erstellt durch chatgpt
+Eine Tast tool mainly nur für mich um mit dem Diensplan verträgliche essensroutinen aufzubauen erstellt durch chatgpt
 Diese Version enthält **keine persönlichen Dienstzeiten oder Essenspläne im Repository**.
 
 ## Datenschutzmodell
